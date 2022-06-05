@@ -1,36 +1,25 @@
 <template>
-  <div>
-    <p>home</p>
-    <button @click="more">more</button>
-    <input type="text" />
-    <button>send</button>
+  <div class="main-bg">
+    <Container />
   </div>
 </template>
 
 <script>
-import axios from "axios";
-axios.post();
+import Container from "./Container.vue";
 
 export default {
-  data() {
-    return {
-      post: [],
-    };
+  mounted() {
+    this.$store.dispatch('GetPosts')
   },
-  methods: {
-    more() {
-      axios
-        .get("http://localhost:3000/postdata", { name: "data" })
-        .then((result) => {
-          console.log(result.data);
-          // result.data.posts.forEach((element) => {
-          //   this.post.push(element);
-          // });
-        });
-    },
+  components: {
+    Container,
   },
 };
 </script>
 
 <style>
+.main-bg {
+  position: relative;
+  top: 30px;
+}
 </style>
