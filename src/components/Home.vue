@@ -2,6 +2,8 @@
   <div>
     <p>home</p>
     <button @click="more">more</button>
+    <input type="text" />
+    <button>send</button>
   </div>
 </template>
 
