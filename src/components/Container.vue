@@ -1,7 +1,10 @@
 <template>
   <div class="container-bg">
-    <button @click="$store.dispatch('GetPostsAction')" class="btn">Update One</button>
     <Card />
+    <div>{{$store.state.postCount}}</div>
+    <button @click="$store.dispatch('GetPostsAction')" class="btn">
+      Show More
+    </button>
   </div>
 </template>
 
@@ -10,11 +13,19 @@ import Card from "./Card.vue";
 // import axios from "axios"
 
 export default {
+  data() {
+    return {};
+  },
   components: {
     Card,
   },
   props: {},
-  methods: {
+  methods: {},
+  updated() {},
+  mounted() {
+    if (this.$store.state.postCount == 0) {
+      this.$store.dispatch("GetPostsAction");
+    }
   },
 };
 </script>
