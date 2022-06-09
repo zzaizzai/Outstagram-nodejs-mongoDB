@@ -9,7 +9,7 @@ import Container from "./Container.vue";
 
 export default {
   mounted() {
-    this.$store.dispatch('GetPosts')
+    
   },
   components: {
     Container,
