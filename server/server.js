@@ -2,13 +2,48 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
+// const http = require('http').createServer(app);
+const { Server } = require("socket.io");
+// const io = new Server(http);
+app.use(express.json());
+
+const cors = require('cors');
+app.use(cors());
+
 const flash = require('connect-flash');
 app.use(flash());
 
 
-app.use(express.json());
-var cors = require('cors');
-app.use(cors());
+
+//it takes 24hours to set socket setting
+const http = require('http')
+const server = http.createServer(app)
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:8080", 
+        transports: [ 'websocket', 'polling' ],
+        methods: ["GET", "POST"]  ,
+        credentials: true,
+    },
+    allowEIO3: true
+})
+
+
+
+io.on('connection', (socket) => {
+    console.log('soket on')
+
+    // socket.on('JOINROOM', function(message){
+    //     socket.join(message.parentUid);
+    // })
+
+    socket.on('SEND_MESSAGE', (data) => {
+        console.log(data)
+        io.emit('MESSAGE', data)
+    });
+
+});
+
 
 
 
@@ -16,10 +51,7 @@ const MongoClient = require('mongodb').MongoClient
 MongoClient.connect('mongodb+srv://junsaiadmin:password1234@cluster0.akash.mongodb.net/?retryWrites=true&w=majority', { useUnifiedTopology: true }, function (error, client) {
     if (error) { return console.log(error) }
     db = client.db('vue')
-    app.listen(3000, function () {
-        console.log('listening on 3000')
-    })
-
+    console.log('mongo connected')
 })
 
 const passport = require('passport')
@@ -141,10 +173,133 @@ app.post('/uploadpost', function (req, res) {
     db.collection('posts').insertOne(req.body.post, (error, result) => {
         console.log('upload done')
     })
+})
+
+
+app.post('/createchatroom', function (req, res) {
+    // console.log(req.body.oponentUserData)
+    // console.log(req.body.myUserData)
+    let isChatRoomExist = false
+    var chatData = {
+        who: [req.body.oponentUserData.userName, req.body.myUserData.userName],
+        whoUid: [req.body.oponentUserData.uid, req.body.myUserData.uid],
+        date: new Date(),
+        latestDate: new Date(),
+    }
+    db.collection('chatroom').find({ whoUid: req.body.myUserData.uid }).toArray().then((result) => {
+        result.forEach(doc => {
+            console.log(doc)
+
+            //check chatroom whether exist or not
+            if (doc.whoUid.includes(req.body.oponentUserData.uid) && doc.whoUid.includes(req.body.myUserData.uid) && (doc.whoUid[0] != doc.whoUid[1])) {
+                isChatRoomExist = true
+                console.log("chatroom with")
+
+
+            } else if (doc.whoUid.includes(req.body.oponentUserData.uid) && doc.whoUid.includes(req.body.myUserData.uid) && (doc.whoUid[0] == doc.whoUid[1])) {
+                isChatRoomExist = true
+                console.log("chatroom with me exist")
+
+            } else {
+
+            }
+        })
+        console.log(isChatRoomExist)
+
+        //if check is false, make new chatroom
+        if (isChatRoomExist) {
+            console.log('go to chatroom')
+            res.json({ isChatRoomExist: isChatRoomExist })
+
+        } else {
+            console.log('create new chatroom')
+            db.collection('chatroom').insertOne(chatData, (error, result) => {
+                console.log(result)
+                res.json({ isChatRoomExist: isChatRoomExist })
+            })
+        }
+    })
 
 })
+
+
+
+app.post('/getchatroom', function (req, res) {
+    // console.log(req.body.user)
+    db.collection('chatroom').find({ whoUid: req.body.user.uid }).sort({ "latestDate": -1 }).toArray().then((result) => {
+        res.json({ chatrooms: result })
+    })
+})
+app.post('/getmessages', function (req, res) {
+    console.log(req.body.chatroom)
+    db.collection('messages').find({ parentUid: req.body.chatroom._id }).sort({ "date": -1 }).toArray().then((result) => {
+        // console.log(result)
+        res.json({ messages: result })
+    })
+})
+
+// app.get('/getmessages/:id', function (req, res) {
+//     console.log(req.params.id)
+
+//     res.writeHead(200, {
+//         "Connection": "keep-alive",
+//         "Content-Type": "text/event-stream",
+//         "Cache-Control": "no-cache",
+//     });
+
+//     console.log(req.body.chatroom)
+//     db.collection('messages').find({ parentUid: req.params.id }).sort({ "date": -1 }).toArray().then((result) => {
+//         console.log(result)
+//         res.write('event: test\n');
+//         res.write('data:' + JSON.stringify(result) + '\n\n');
+//         // res.json({ messages: result })
+//     })
+
+//     const pipeline = [
+//         // documents you want to watch
+//         { $match: { 'fullDocument.parent': req.params.id } }
+//     ];
+
+//     const changeStream = db.collection('messages').watch(pipeline);
+
+//     changeStream.on('change', (result) => {
+//         console.log(result.fullDocument);
+//         res.write('event: test\n');
+//         res.write('data:' + JSON.stringify([result.fullDocument]) + '\n\n');
+//     });
+
+// })
+
+app.post('/sendmessage', function (req, res) {
+    console.log(req.body.message)
+    db.collection('messages').insertOne(req.body.message, (error, result) => {
+        db.collection('chatroom').findOne({ _id: req.body.message.parentUid }, { $set: { 'lastestDate': new Date() } }, function (error2, result2) {
+            if (error2) { return console.log(error2) }
+        })
+        console.log('send message done')
+    })
+
+
+
+
+})
+
+
+
+
+
+// console.log(isChatRoomExist)
+
+
+
+
+
+// })
 
 app.use('/', express.static(path.join(__dirname, './../dist')))
 
 
 
+server.listen(3000, function () {
+    console.log('listening on 3000')
+})

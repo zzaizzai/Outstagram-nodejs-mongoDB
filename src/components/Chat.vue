@@ -4,25 +4,23 @@
       <div class="col-3">
         <ul class="list-group chat-list">
           <li class="list-group-item">
-          <h6>currentChatUid:</h6>
+            <h6>{{ currentChatUid }}</h6>
           </li>
 
           <div v-for="item in chatRoom" :key="item">
             <li
-              v-bind:class="{ activechat: currentChatUid == item.uid }"
-              @click="
-                currentChatUid = item.uid;
-              "
+              v-bind:class="{ activechat: currentChatUid == item._id }"
+              @click="FetchMessages(item)"
               class="list-group-item chat-list-box"
             >
               <h6 v-if="item.who[0] == $store.state.myUserData.userName">
                 {{ item.who[1] }}
               </h6>
               <h6 v-else>{{ item.who[0] }}</h6>
-              <p class="chatroom-time">{{ item.lastDate }}</p>
+              <p class="chatroom-time">{{ item.latestDate }}</p>
             </li>
           </div>
-          <button @click="FetchChatRoom">채팅방 패치</button>
+          <button @click="FetchChatRoom">chatroom fetch</button>
         </ul>
       </div>
 
@@ -43,46 +41,43 @@
               <li>
                 <div class="row">
                   <div>
-                    <!-- <span
+                    <span
                       class="chat-date text-small"
                       v-bind:class="{
                         minedate:
-                          $store.state.myUserData.uid ==
-                          message.chatUserUidFrom,
+                          $store.state.myUserData.uid == message.senderUid,
                       }"
                       >{{ message.date }}</span
-                    > -->
+                    >
                   </div>
 
                   <div>
                     <span
                       class="chat-box"
                       v-bind:class="{
-                        mine:
-                          $store.state.myUserData.uid ==
-                          message.chatUserUidFrom,
+                        mine: $store.state.myUserData.uid == message.senderUid,
                       }"
-                      >{{ message.chatContent }}</span
+                      >{{ message.content }}</span
                     >
                   </div>
                 </div>
               </li>
             </div>
-            <li><span class="chat-box">ㅎㅇ</span></li>
+            <!-- <li><span class="chat-box">ㅎㅇ</span></li>
             <li><span class="chat-box mine">ㅎㅇ</span></li>
-            <li><span class="chat-box mine">ㅎㅇ</span></li>
+            <li><span class="chat-box mine">ㅎㅇ</span></li> -->
           </ul>
           <div class="input-group">
             <input class="form-control" id="chat-input" v-model="sendMessage" />
-            <button class="btn btn-secondary" >send</button>
+            <button @click="SendMessage" class="btn btn-secondary">send</button>
           </div>
-          <!-- <div
+          <div
             class="down-button"
             style="font-size: 20px"
             @click="ScrollToBottom"
           >
             ▽
-          </div> -->
+          </div>
         </div>
       </div>
     </div>
@@ -90,16 +85,17 @@
 </template>
 
 <script>
+import axios from "axios";
+import io from "socket.io-client";
+
 export default {
   name: "chat",
-  created() {
-  },
-  mounted() {},
-  unmounted() {},
+
   data() {
     return {
+      socket: io("http://127.0.0.1:3000"),
       sendMessage: "",
-      currentChatUid: "",
+      currentChatUid: "none",
       chatOponent: "Chose chat oponent",
       chatOponentUid: "2",
       scrollHeightofChat: 0,
@@ -107,29 +103,108 @@ export default {
       chatContent: [],
       chatRoom: [
         {
-          uid: "0",
+          _id: "0",
           whoUid: ["0", "2"],
           who: ["admin", "Kims"],
           startDate: "22 - 5 - 20",
           lastDate: "22 - 5 - 30",
         },
         {
-          uid: "1",
+          _id: "1",
           whoUid: ["0", "3"],
           who: ["admin", "Elaski"],
-          startDate:' 22 - 5 - 21',
-          lastDate: '22 - 5 - 31',
+          startDate: " 22 - 5 - 21",
+          lastDate: "22 - 5 - 31",
         },
       ],
     };
   },
+  created() {
+    // this.socket.on("MESSAGE", () => {
+    //   console.log("connected");
+    // this.chatContent = [...this.chatContent, data];
+    // });
+  },
   updated() {
-    this.scrollHeightofChat = this.$el.querySelector("#scrollMe").scrollHeight;
+    this.ScrollToBottom();
+  },
+  mounted() {
+    this.FetchChatRoom();
+    this.socket.on("MESSAGE", (data) => {
+
+      //replcae date display
+      var messageDateChanged = data;
+      messageDateChanged.date =
+        new Date(messageDateChanged.date).toLocaleDateString() +
+        new Date(messageDateChanged.date).toLocaleTimeString();
+      this.chatContent.push(messageDateChanged);
+    });
   },
   methods: {
-    FetchChatRoom(){
-      console.log("fetch chatroom")
-    }
+    Join() {
+      // this.soketInsatance =  io("http://localhost:3000")
+    },
+    ScrollToBottom() {
+      let container = this.$el.querySelector("#scrollMe");
+      container.scrollTop = container.scrollHeight;
+    },
+    FetchChatRoom() {
+      this.chatRoom.splice(0, this.chatRoom.length);
+      console.log("fetch chatroom");
+      axios
+        .post("http://localhost:3000/getchatroom", {
+          user: this.$store.state.myUserData,
+        })
+        .then((result) => {
+          result.data.chatrooms.forEach((chatroom) => {
+            console.log(chatroom);
+            this.chatRoom.unshift(chatroom);
+          });
+        });
+    },
+    FetchMessages(payload) {
+      // var eventSource;
+
+      // if (eventSource != undefined) {
+      //   eventSource.close();
+      // }
+
+      this.currentChatUid = payload._id;
+      // eventSource = new EventSource('http://localhost:3000/getmessages/' + payload._id);
+      // eventSource.addEventListener("post", function (e) {
+      //   console.log(e.data);
+      // });
+
+      axios
+        .post("http://localhost:3000/getmessages", { chatroom: payload })
+        .then((result) => {
+          this.chatContent.splice(0, this.chatContent.length);
+          result.data.messages.forEach((message) => {
+            var messageDateChanged = message;
+            messageDateChanged.date =
+              new Date(messageDateChanged.date).toLocaleDateString() +
+              new Date(messageDateChanged.date).toLocaleTimeString();
+            this.chatContent.unshift(messageDateChanged);
+          });
+        });
+    },
+    SendMessage() {
+      var message = {
+        parentUid: this.currentChatUid,
+        senderUid: this.$store.state.myUserData.uid,
+        senderName: this.$store.state.myUserData.userName,
+        content: this.sendMessage,
+        date: new Date(),
+      };
+      this.socket.emit("SEND_MESSAGE", message);
+      // socket.emit('JOINROOM', message)
+      if (this.currentChatUid != "none") {
+        axios.post("http://localhost:3000/sendmessage", { message: message });
+        this.sendMessage = "";
+      } else {
+        console.log("input message");
+      }
+    },
   },
   watch: {
     chatRoom() {},
@@ -138,10 +213,9 @@ export default {
 </script>
 
 <style>
-.activechat{
+.activechat {
   background: rgba(0, 0, 0, 0.185) !important;
   border-color: rgba(0, 0, 0, 0.185) !important;
-
 }
 .chat-box {
   background: #eee;
@@ -185,5 +259,10 @@ export default {
 
 .down-button:hover {
   cursor: pointer;
+}
+
+.text-small {
+  font-size: 12px;
+  color: gray;
 }
 </style>
