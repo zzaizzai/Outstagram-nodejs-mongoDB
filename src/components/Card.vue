@@ -8,8 +8,8 @@
               <div class="col-3">
                 <div class="profile-item profile-item-image">profileurl</div>
               </div>
-              <p class="profile-item profile-item-username col-3">
-                {{ item.authorEmail }}
+              <p class="profile-item profile-item-username col-6">
+                {{item.authorName}}({{ item.authorEmail }})
               </p>
             </div>
             <div>

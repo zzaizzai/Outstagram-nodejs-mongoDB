@@ -78,6 +78,7 @@
           >
             ▽
           </div>
+          <button @click="test">test</button>
         </div>
       </div>
     </div>
@@ -102,47 +103,72 @@ export default {
 
       chatContent: [],
       chatRoom: [
-        {
-          _id: "0",
-          whoUid: ["0", "2"],
-          who: ["admin", "Kims"],
-          startDate: "22 - 5 - 20",
-          lastDate: "22 - 5 - 30",
-        },
-        {
-          _id: "1",
-          whoUid: ["0", "3"],
-          who: ["admin", "Elaski"],
-          startDate: " 22 - 5 - 21",
-          lastDate: "22 - 5 - 31",
-        },
+        // {
+        //   _id: "0",
+        //   whoUid: ["0", "2"],
+        //   who: ["admin", "Kims"],
+        //   startDate: "22 - 5 - 20",
+        //   latestDate: "22 - 5 - 30",
+        // },
+        // {
+        //   _id: "1",
+        //   whoUid: ["0", "3"],
+        //   who: ["admin", "Elaski"],
+        //   startDate: " 22 - 5 - 21",
+        //   latestDate: "22 - 5 - 31",
+        // },
       ],
     };
   },
-  created() {
-    // this.socket.on("MESSAGE", () => {
-    //   console.log("connected");
-    // this.chatContent = [...this.chatContent, data];
-    // });
-  },
+  // created() {
+  // this.socket.on("MESSAGE", () => {
+  //   console.log("connected");
+  // this.chatContent = [...this.chatContent, data];
+  // });
+  // },
   updated() {
     this.ScrollToBottom();
   },
+  created() {},
+  beforeMount() {},
   mounted() {
     this.FetchChatRoom();
-    this.socket.on("MESSAGE", (data) => {
+    this.SoketOn();
+  },
+  methods: {
+    SoketJoin(chatroom) {
+      this.socket.emit("JOIN_ROOM", chatroom);
+    },
+    SoketOn() {
+      this.socket.on("ROOM_MESSAGE", (message) => {
+        var findeTargetIndex = this.chatRoom.findIndex(
+          (v) => v._id === message.parentUid
+        );
+        var newChatroom = this.chatRoom[findeTargetIndex];
+        newChatroom.latestDate = message.date;
+        this.chatRoom.splice(findeTargetIndex, 1);
+        // console.log(newChatroom);
+        this.chatRoom.unshift(this.ChagneLatestDate(newChatroom));
 
-      //replcae date display
-      var messageDateChanged = data;
+        console.log("received data from socket");
+        if (message.parentUid == this.currentChatUid) {
+          this.chatContent.push(this.ChagneDate(message));
+        }
+      });
+    },
+    ChagneDate(content) {
+      var messageDateChanged = content;
       messageDateChanged.date =
         new Date(messageDateChanged.date).toLocaleDateString() +
         new Date(messageDateChanged.date).toLocaleTimeString();
-      this.chatContent.push(messageDateChanged);
-    });
-  },
-  methods: {
-    Join() {
-      // this.soketInsatance =  io("http://localhost:3000")
+      return messageDateChanged;
+    },
+    ChagneLatestDate(content) {
+      var messageDateChanged = content;
+      messageDateChanged.latestDate =
+        new Date(messageDateChanged.latestDate).toLocaleDateString() +
+        new Date(messageDateChanged.latestDate).toLocaleTimeString();
+      return messageDateChanged;
     },
     ScrollToBottom() {
       let container = this.$el.querySelector("#scrollMe");
@@ -157,34 +183,26 @@ export default {
         })
         .then((result) => {
           result.data.chatrooms.forEach((chatroom) => {
-            console.log(chatroom);
-            this.chatRoom.unshift(chatroom);
+            // console.log(chatroom);
+            this.SoketJoin(chatroom);
+            this.chatRoom.push(this.ChagneLatestDate(chatroom));
           });
         });
     },
     FetchMessages(payload) {
-      // var eventSource;
-
-      // if (eventSource != undefined) {
-      //   eventSource.close();
-      // }
-
       this.currentChatUid = payload._id;
-      // eventSource = new EventSource('http://localhost:3000/getmessages/' + payload._id);
-      // eventSource.addEventListener("post", function (e) {
-      //   console.log(e.data);
-      // });
 
       axios
         .post("http://localhost:3000/getmessages", { chatroom: payload })
         .then((result) => {
           this.chatContent.splice(0, this.chatContent.length);
           result.data.messages.forEach((message) => {
-            var messageDateChanged = message;
-            messageDateChanged.date =
-              new Date(messageDateChanged.date).toLocaleDateString() +
-              new Date(messageDateChanged.date).toLocaleTimeString();
-            this.chatContent.unshift(messageDateChanged);
+            // var messageDateChanged = message;
+            // messageDateChanged.date =
+            //   new Date(messageDateChanged.date).toLocaleDateString() +
+            //   new Date(messageDateChanged.date).toLocaleTimeString();
+
+            this.chatContent.unshift(this.ChagneDate(message));
           });
         });
     },
@@ -196,11 +214,13 @@ export default {
         content: this.sendMessage,
         date: new Date(),
       };
-      this.socket.emit("SEND_MESSAGE", message);
-      // socket.emit('JOINROOM', message)
-      if (this.currentChatUid != "none") {
-        axios.post("http://localhost:3000/sendmessage", { message: message });
+
+      if (this.currentChatUid != "none" && this.sendMessage != "") {
+        // this.socket.emit("SEND_MESSAGE", message);
+        this.socket.emit("ROOM_SEND", message);
+        axios.post("http://127.0.0.1:3000/sendmessage", { message: message });
         this.sendMessage = "";
+        console.log("send message done");
       } else {
         console.log("input message");
       }
