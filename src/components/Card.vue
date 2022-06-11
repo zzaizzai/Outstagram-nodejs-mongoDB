@@ -9,7 +9,7 @@
                 <div class="profile-item profile-item-image">profileurl</div>
               </div>
               <p class="profile-item profile-item-username col-6">
-                {{item.authorName}}({{ item.authorEmail }})
+                {{item.authorName}} ({{ item.authorEmail }})
               </p>
             </div>
             <div>

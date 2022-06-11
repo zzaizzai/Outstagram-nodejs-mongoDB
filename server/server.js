@@ -59,6 +59,9 @@ const MongoClient = require('mongodb').MongoClient
 MongoClient.connect('mongodb+srv://junsaiadmin:password1234@cluster0.akash.mongodb.net/?retryWrites=true&w=majority', { useUnifiedTopology: true }, function (error, client) {
     if (error) { return console.log(error) }
     db = client.db('vue')
+    server.listen(3000, function () {
+        console.log('listening on 3000')
+    })
 
 })
 
@@ -194,9 +197,15 @@ app.post('/createchatroom', function (req, res) {
         date: new Date(),
         latestDate: new Date(),
     }
+    var targetChatUid
     db.collection('chatroom').find({ whoUid: req.body.myUserData.uid }).toArray().then((result) => {
         result.forEach(doc => {
             console.log(doc)
+
+            if (doc.whoUid.includes(req.body.oponentUserData.uid)) {
+                targetChatUid = doc._id
+
+            }
 
             //check chatroom whether exist or not
             if (doc.whoUid.includes(req.body.oponentUserData.uid) && doc.whoUid.includes(req.body.myUserData.uid) && (doc.whoUid[0] != doc.whoUid[1])) {
@@ -217,7 +226,7 @@ app.post('/createchatroom', function (req, res) {
         //if check is false, make new chatroom
         if (isChatRoomExist) {
             console.log('go to chatroom')
-            res.json({ isChatRoomExist: isChatRoomExist })
+            res.json({ isChatRoomExist: isChatRoomExist, targetChatUid: targetChatUid })
 
         } else {
             console.log('create new chatroom')
@@ -251,7 +260,7 @@ app.post('/sendmessage', function (req, res) {
     // console.log(req.body.message)
     db.collection('messages').insertOne(req.body.message, (error, result) => {
     })
-    db.collection('chatroom').updateOne({ _id: ObjectId(req.body.message.parentUid) }, { $set: { 'latestDate': new Date()} }, (error2, result2) => {
+    db.collection('chatroom').update({ _id: ObjectId(req.body.message.parentUid) }, { $set: { 'latestDate': new Date(), 'recentMessage': req.body.message.content } }, (error2, result2) => {
         if (error2) { return console.log(error2) }
     })
     console.log('send message done')
@@ -261,6 +270,3 @@ app.post('/sendmessage', function (req, res) {
 app.use('/', express.static(path.join(__dirname, './../dist')))
 
 
-server.listen(3000, function () {
-    console.log('listening on 3000')
-})

@@ -13,10 +13,11 @@
               @click="FetchMessages(item)"
               class="list-group-item chat-list-box"
             >
-              <h6 v-if="item.who[0] == $store.state.myUserData.userName">
+              <h6 class="chatroom-who" v-if="item.who[0] == $store.state.myUserData.userName">
                 {{ item.who[1] }}
               </h6>
-              <h6 v-else>{{ item.who[0] }}</h6>
+              <h6 class="chatroom-who" v-else>{{ item.who[0] }}</h6>
+              <p class="chatroom-recent">{{item.recentMessage}}</p>
               <p class="chatroom-time">{{ item.latestDate }}</p>
             </li>
           </div>
@@ -134,6 +135,11 @@ export default {
   mounted() {
     this.FetchChatRoom();
     this.SoketOn();
+    if (this.$store.state.chatTarget._id != "none") {
+      // console.log(this.$store.state.chatTarget._id)
+      this.FetchMessages(this.$store.state.chatTarget)
+
+    }
   },
   methods: {
     SoketJoin(chatroom) {
@@ -146,6 +152,7 @@ export default {
         );
         var newChatroom = this.chatRoom[findeTargetIndex];
         newChatroom.latestDate = message.date;
+        newChatroom.recentMessage = message.content
         this.chatRoom.splice(findeTargetIndex, 1);
         // console.log(newChatroom);
         this.chatRoom.unshift(this.ChagneLatestDate(newChatroom));
@@ -218,7 +225,7 @@ export default {
       if (this.currentChatUid != "none" && this.sendMessage != "") {
         // this.socket.emit("SEND_MESSAGE", message);
         this.socket.emit("ROOM_SEND", message);
-        axios.post("http://127.0.0.1:3000/sendmessage", { message: message });
+        axios.post("http://localhost:3000/sendmessage", { message: message });
         this.sendMessage = "";
         console.log("send message done");
       } else {
@@ -284,5 +291,14 @@ export default {
 .text-small {
   font-size: 12px;
   color: gray;
+}
+.chatroom-recent{
+  font-size: 12px;
+  margin: 0px;
+  color: cornflowerblue;
+}
+
+.chatroom-who{
+  margin: 0px;
 }
 </style>

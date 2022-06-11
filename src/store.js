@@ -9,6 +9,10 @@ const store = createStore({
 
             postCount: 0,
 
+            chatTarget: {
+                _id: "none"
+            },
+
             myUserData: {
                 uid: '0',
                 userName: 'admin',
@@ -18,19 +22,19 @@ const store = createStore({
                 role: 'normal'
             },
             posts: [
-            //     {
-            //     _id: "11111111",
-            //     authorName: "test",
-            //     authorEmail: "test",
-            //     authorProfileUrl: "none111",
-            //     authorUid: "IHDnCrJ0BWebbcTzybQevvdsd1i211111",
-            //     content: "It is default profile imag111111e It is default profile imag111111e It is default profile imag111111e It is default profile imag111111e",
-            //     date: "2022-06-06T15:45:57.087Z",
-            //     liked: false,
-            //     likes: 1,
-            //     uploadImageUrl: "https://placeimg.com/640/480/animals",
-            // }
-        ]
+                //     {
+                //     _id: "11111111",
+                //     authorName: "test",
+                //     authorEmail: "test",
+                //     authorProfileUrl: "none111",
+                //     authorUid: "IHDnCrJ0BWebbcTzybQevvdsd1i211111",
+                //     content: "It is default profile imag111111e It is default profile imag111111e It is default profile imag111111e It is default profile imag111111e",
+                //     date: "2022-06-06T15:45:57.087Z",
+                //     liked: false,
+                //     likes: 1,
+                //     uploadImageUrl: "https://placeimg.com/640/480/animals",
+                // }
+            ]
         }
     },
     mutations: {
@@ -75,7 +79,7 @@ const store = createStore({
                 commit('GetPostsMutation', result.data.posts)
             })
         },
-        
+
         UploadNewPostAction(context, payload) {
             console.log("payload")
             console.log(payload)
@@ -83,20 +87,21 @@ const store = createStore({
 
         },
 
-        CheckChatRoomAndCreateChatRoom({state}, payload) {
+        CheckChatRoomAndCreateChatRoom({ state }, payload) {
 
-            let oponentUserData ={
+            let oponentUserData = {
                 uid: payload.authorUid,
                 userEmail: payload.authorEmail,
                 userName: payload.authorName,
             }
-            
+
             //Create ChatRoom
             console.log(payload)
-            axios.post('http://localhost:3000/createchatroom', { oponentUserData: oponentUserData, myUserData: state.myUserData }).then((result)=>{
+            axios.post('http://localhost:3000/createchatroom', { oponentUserData: oponentUserData, myUserData: state.myUserData }).then((result) => {
                 console.log(result.data.isChatRoomExist)
                 if (result.data.isChatRoomExist) {
                     console.log("already exist")
+                    state.chatTarget._id = result.data.targetChatUid
                     router.push("/chat");
                 } else {
                     console.log("created new chatroom")
