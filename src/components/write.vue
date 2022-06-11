@@ -33,6 +33,7 @@ export default {
         likes: 0,
         date: new Date(),
         uploadImageUrl: "https://placeimg.com/640/480/animals",
+        liked : false,
       };
       console.log("uploadnewpost");
       this.$store.dispatch("UploadNewPostAction", uploadData).then(() => {

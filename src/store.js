@@ -17,18 +17,20 @@ const store = createStore({
                 userContent: 'none',
                 role: 'normal'
             },
-            posts: [{
-                _id: "11111111",
-                authorName: "test",
-                authorEmail: "test",
-                authorProfileUrl: "none111",
-                authorUid: "IHDnCrJ0BWebbcTzybQevvdsd1i211111",
-                content: "It is default profile imag111111e It is default profile imag111111e It is default profile imag111111e It is default profile imag111111e",
-                date: "2022-06-06T15:45:57.087Z",
-                liked: false,
-                likes: 1,
-                uploadImageUrl: "https://placeimg.com/640/480/animals",
-            }]
+            posts: [
+            //     {
+            //     _id: "11111111",
+            //     authorName: "test",
+            //     authorEmail: "test",
+            //     authorProfileUrl: "none111",
+            //     authorUid: "IHDnCrJ0BWebbcTzybQevvdsd1i211111",
+            //     content: "It is default profile imag111111e It is default profile imag111111e It is default profile imag111111e It is default profile imag111111e",
+            //     date: "2022-06-06T15:45:57.087Z",
+            //     liked: false,
+            //     likes: 1,
+            //     uploadImageUrl: "https://placeimg.com/640/480/animals",
+            // }
+        ]
         }
     },
     mutations: {
@@ -54,7 +56,7 @@ const store = createStore({
         }
         ,
         GetUserDataFromSessionStorage(state, payload) {
-            console.log(payload)
+            // console.log(payload)
             state.myUserData.uid = payload.user._id
             state.myUserData.userName = payload.user.displayName
             state.myUserData.userEmail = payload.user.id
@@ -73,6 +75,7 @@ const store = createStore({
                 commit('GetPostsMutation', result.data.posts)
             })
         },
+        
         UploadNewPostAction(context, payload) {
             console.log("payload")
             console.log(payload)

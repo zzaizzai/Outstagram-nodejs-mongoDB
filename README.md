@@ -12,7 +12,7 @@ Nodejs
 ```
 cd server   
 npm install  
-nodemon sever.js
+nodemon server.js
 ```
 
 

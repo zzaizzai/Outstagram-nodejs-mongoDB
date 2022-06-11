@@ -31,10 +31,22 @@ const routes = [
   {
     path: "/write",
     component: Write,
+    beforeEnter: () => {
+      if (store.state.isLogin == false) {
+        return '/login'
+
+      }
+    }
   },
   {
     path: "/chat",
     component: Chat,
+    beforeEnter: () => {
+      if (store.state.isLogin == false) {
+        return '/login'
+
+      }
+    }
   },
   {
     path: "/test",
