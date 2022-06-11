@@ -20,7 +20,7 @@
                 src="./../assets/images/heart.svg"
                 class="card-button mx-1"
               />
-              <img src="./../assets/images/mail.svg" class="card-button mx-1" />
+              <img src="./../assets/images/mail.svg" class="card-button mx-1" @click="$store.dispatch('CheckChatRoomAndCreateChatRoom', item)" />
             </div>
             <p class="content-date">{{ item.date }}</p>
           </div>
@@ -81,5 +81,9 @@ export default {
 .card-button {
   height: 25px;
   width: 25px;
+}
+.card-button:hover{
+  filter: brightness(0.2);
+  cursor: pointer;
 }
 </style>

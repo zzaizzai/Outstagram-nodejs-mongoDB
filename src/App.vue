@@ -41,12 +41,12 @@
         </li>
         <li class="nav-item">
           <a class="nav-link"
-            ><router-link to="/profile">              <img
+            ><router-link to="/profile">
+              <img
                 class="nav-image"
                 src="./assets/images/profile.svg"
-                alt=""
-              /></router-link></a
-          >
+                alt="" /></router-link
+          ></a>
         </li>
         <li class="nav-item">
           <a class="nav-link"><router-link to="/login">Login</router-link></a>
@@ -96,6 +96,6 @@ export default {
 
 .nav-image {
   width: 30px;
-  /* image-rendering: -webkit-optimize-contrast; */
+  image-rendering: -webkit-optimize-contrast;
 }
 </style>

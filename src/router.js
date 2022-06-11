@@ -8,6 +8,7 @@ import Profile from './components/Profile.vue'
 import Register from './components/Register.vue'
 import store from './store.js'
 
+
 const routes = [
   {
     path: "/",

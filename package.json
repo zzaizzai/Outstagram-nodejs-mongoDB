@@ -2,6 +2,7 @@
   "name": "outstagramnongodb",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3000",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -12,11 +13,16 @@
     "bootstrap": "^5.1.3",
     "bootstrap-vue": "^2.22.0",
     "core-js": "^3.6.5",
+    "socket.io": "^4.5.1",
+    "socket.io-client": "^2.3.0",
     "vue": "^3.2.36",
+    "vue-3-socket.io": "^1.0.5",
     "vue-router": "^4.0.15",
+    "vue-socket.io": "^3.0.10",
     "vuex": "^4.0.2"
   },
   "devDependencies": {
+    "@types/socket.io-client": "^3.0.0",
     "@vue/cli-plugin-babel": "~4.5.11",
     "@vue/cli-plugin-eslint": "~4.5.11",
     "@vue/cli-service": "~4.5.11",

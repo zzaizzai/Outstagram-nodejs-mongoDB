@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import axios from 'axios'
+import router from './router.js'
 
 const store = createStore({
     state() {
@@ -31,13 +32,13 @@ const store = createStore({
         }
     },
     mutations: {
-        UploadPost(state, payload){
+        UploadPost(state, payload) {
             state.posts.unshift(payload)
         },
         LoginTrue(state) {
             state.isLogin = true
         },
-        LoginFalse(state){
+        LoginFalse(state) {
             state.isLogin = false
         },
         ClearPosts(state) {
@@ -77,7 +78,29 @@ const store = createStore({
             console.log(payload)
             axios.post('http://localhost:3000/uploadpost', { post: payload })
 
-        }
+        },
+
+        CheckChatRoomAndCreateChatRoom({state}, payload) {
+
+            let oponentUserData ={
+                uid: payload.authorUid,
+                userEmail: payload.authorEmail,
+                userName: payload.authorName,
+            }
+            
+            //Create ChatRoom
+            console.log(payload)
+            axios.post('http://localhost:3000/createchatroom', { oponentUserData: oponentUserData, myUserData: state.myUserData }).then((result)=>{
+                console.log(result.data.isChatRoomExist)
+                if (result.data.isChatRoomExist) {
+                    console.log("already exist")
+                    router.push("/chat");
+                } else {
+                    console.log("created new chatroom")
+                    router.push("/chat");
+                }
+            })
+        },
     }
 })
 
