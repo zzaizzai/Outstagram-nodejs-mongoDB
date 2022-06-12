@@ -32,7 +32,7 @@ const io = new Server(server, {
 
 
 io.on('connection', (socket) => {
-    console.log('soket on')
+    // console.log('soket on')
 
     socket.on('JOIN_ROOM', (chatroom) => {
         console.log('joined chatroom')
@@ -278,5 +278,19 @@ app.post('/getprofile', function (req, res) {
         delete result.pw
         console.log(result)
         res.json({ profile: result })
+    })
+})
+
+app.post('/editprofile', function (req, res) {
+    console.log(req.body.profile)
+    db.collection('users').updateOne({ _id: ObjectId(req.body.profile.profileUid) }, {
+        $set:
+        {
+            'content': req.body.profile.profileContent,
+            'profileUrl': req.body.profile.profileProfileUrl,
+            'displayName': req.body.profile.profileName
+        }
+    }, (error, result) => {
+        res.json({ newProfile: req.body.profile })
     })
 })
