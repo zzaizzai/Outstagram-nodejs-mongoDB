@@ -69,9 +69,25 @@ const store = createStore({
 
 
         },
+        EditProfile(state, payload) {
+            console.log("good22")
+            state.myUserData.uid = payload.newProfile.profileUid
+            state.myUserData.userName = payload.newProfile.profileName
+            state.myUserData.userEmail = payload.newProfile.profileEmail
+            state.myUserData.userContent = payload.newProfile.profileContent
+            state.myUserData.userProfileurl = payload.newProfile.profileProfileUrl
+        },
 
     },
     actions: {
+        EditProfile({commit, state}, payload) {
+            axios.post('http://localhost:3000/editprofile', { profile: payload }).then((result) => {
+                // console.log(result.data)
+                commit('EditProfile', result.data)
+                router.push("/profile/" + state.myUserData.userEmail );
+
+            })
+        },
         GetPostsAction({ commit, state }) {
             var increase = 3
             axios.post("http://localhost:3000/getposts", { postCount: state.postCount, increase: increase }).then((result) => {
