@@ -6,6 +6,7 @@ import Chat from './components/Chat.vue'
 import Login from './components/Login.vue'
 import Profile from './components/Profile.vue'
 import Register from './components/Register.vue'
+import EditPorifle from './components/EditProfile.vue'
 import store from './store.js'
 
 
@@ -15,7 +16,8 @@ const routes = [
     component: Home,
   },
   {
-    path: "/profile",
+    name: 'profile',
+    path: "/profile/:id",
     component: Profile,
     beforeEnter: () => {
       if (store.state.isLogin == false) {
@@ -23,6 +25,10 @@ const routes = [
 
       }
     }
+  },
+  {
+    path: "/edit/profile",
+    component: EditPorifle,
   },
   {
     path: "/register",

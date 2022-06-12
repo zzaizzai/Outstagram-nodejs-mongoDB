@@ -41,7 +41,12 @@
         </li>
         <li class="nav-item">
           <a class="nav-link"
-            ><router-link to="/profile">
+            ><router-link
+              v-bind:to="{
+                name: 'profile',
+                params: { id: $store.state.myUserData.userEmail },
+              }"
+            >
               <img
                 class="nav-image"
                 src="./assets/images/profile.svg"

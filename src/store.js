@@ -73,9 +73,10 @@ const store = createStore({
     },
     actions: {
         GetPostsAction({ commit, state }) {
-            axios.post("http://localhost:3000/getposts", { postCount: state.postCount }).then((result) => {
+            var increase = 3
+            axios.post("http://localhost:3000/getposts", { postCount: state.postCount, increase: increase }).then((result) => {
                 console.log("getpost")
-                state.postCount += 2
+                state.postCount += increase
                 commit('GetPostsMutation', result.data.posts)
             })
         },

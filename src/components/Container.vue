@@ -2,7 +2,7 @@
   <div class="container-bg">
     <Card />
     <div>{{$store.state.postCount}}</div>
-    <button @click="$store.dispatch('GetPostsAction')" class="btn">
+    <button @click="$store.dispatch('GetPostsAction', {a:2})" class="btn">
       Show More
     </button>
   </div>

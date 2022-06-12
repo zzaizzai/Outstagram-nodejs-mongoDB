@@ -6,10 +6,24 @@
           <div class="row">
             <div class="card-profile row">
               <div class="col-3">
-                <div class="profile-item profile-item-image">profileurl</div>
+                <!-- <div class="profile-item profile-item-image">profileurl</div> -->
+                <img
+                  class="profile-item profile-item-image"
+                  v-if="item.authorProfileUrl == 'none'"
+                  src="./../assets/images/profile.svg"
+                  alt=""
+                />
               </div>
+
               <p class="profile-item profile-item-username col-6">
-                {{item.authorName}} ({{ item.authorEmail }})
+                <router-link
+                  style="color: black; text-decoration-line: none"
+                  v-bind:to="{
+                    name: 'profile',
+                    params: { id: item.authorEmail },
+                  }"
+                  >{{ item.authorName }} ({{ item.authorEmail }})</router-link
+                >
               </p>
             </div>
             <div>
@@ -20,7 +34,11 @@
                 src="./../assets/images/heart.svg"
                 class="card-button mx-1"
               />
-              <img src="./../assets/images/mail.svg" class="card-button mx-1" @click="$store.dispatch('CheckChatRoomAndCreateChatRoom', item)" />
+              <img
+                src="./../assets/images/mail.svg"
+                class="card-button mx-1"
+                @click="$store.dispatch('CheckChatRoomAndCreateChatRoom', item)"
+              />
             </div>
             <p class="content-date">{{ item.date }}</p>
           </div>
@@ -75,14 +93,14 @@ export default {
   color: gray;
 }
 
-.content{
+.content {
   margin: 5px;
 }
 .card-button {
   height: 25px;
   width: 25px;
 }
-.card-button:hover{
+.card-button:hover {
   filter: brightness(0.2);
   cursor: pointer;
 }

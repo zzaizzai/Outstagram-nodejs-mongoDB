@@ -166,8 +166,9 @@ app.post('/register', function (req, res) {
 
 
 app.post('/getposts', function (req, res) {
-    console.log(req.body.postCount)
-    db.collection('posts').find().limit(2).skip(req.body.postCount).sort({ "date": -1 }).toArray(function (error, result) {
+    // console.log(req.body.postCount)
+    // console.log(req.body.increase)
+    db.collection('posts').find().limit(req.body.increase).skip(req.body.postCount).sort({ "date": -1 }).toArray(function (error, result) {
         console.log(result)
         res.json({ posts: result })
 
@@ -270,3 +271,12 @@ app.post('/sendmessage', function (req, res) {
 app.use('/', express.static(path.join(__dirname, './../dist')))
 
 
+
+
+app.post('/getprofile', function (req, res) {
+    db.collection('users').findOne({ id: req.body.profileEmail }).then((result) => {
+        delete result.pw
+        console.log(result)
+        res.json({ profile: result })
+    })
+})
