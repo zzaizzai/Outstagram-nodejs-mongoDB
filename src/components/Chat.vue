@@ -13,15 +13,18 @@
               @click="FetchMessages(item)"
               class="list-group-item chat-list-box"
             >
-              <h6 class="chatroom-who" v-if="item.who[0] == $store.state.myUserData.userName">
+              <h6
+                class="chatroom-who"
+                v-if="item.who[0] == $store.state.myUserData.userName"
+              >
                 {{ item.who[1] }}
               </h6>
               <h6 class="chatroom-who" v-else>{{ item.who[0] }}</h6>
-              <p class="chatroom-recent">{{item.recentMessage}}</p>
+              <p class="chatroom-recent">{{ item.recentMessage }}</p>
               <p class="chatroom-time">{{ item.latestDate }}</p>
             </li>
           </div>
-          <button @click="FetchChatRoom">chatroom fetch</button>
+          <!-- <button @click="FetchChatRoom">chatroom fetch</button> -->
         </ul>
       </div>
 
@@ -79,7 +82,6 @@
           >
             ▽
           </div>
-          <button @click="test">test</button>
         </div>
       </div>
     </div>
@@ -137,8 +139,7 @@ export default {
     this.SoketOn();
     if (this.$store.state.chatTarget._id != "none") {
       // console.log(this.$store.state.chatTarget._id)
-      this.FetchMessages(this.$store.state.chatTarget)
-
+      this.FetchMessages(this.$store.state.chatTarget);
     }
   },
   methods: {
@@ -152,7 +153,7 @@ export default {
         );
         var newChatroom = this.chatRoom[findeTargetIndex];
         newChatroom.latestDate = message.date;
-        newChatroom.recentMessage = message.content
+        newChatroom.recentMessage = message.content;
         this.chatRoom.splice(findeTargetIndex, 1);
         // console.log(newChatroom);
         this.chatRoom.unshift(this.ChagneLatestDate(newChatroom));
@@ -292,13 +293,13 @@ export default {
   font-size: 12px;
   color: gray;
 }
-.chatroom-recent{
+.chatroom-recent {
   font-size: 12px;
   margin: 0px;
   color: cornflowerblue;
 }
 
-.chatroom-who{
+.chatroom-who {
   margin: 0px;
 }
 </style>

@@ -3,13 +3,31 @@
     <div>
       <div class="profile-container center-block">
         <div>_id: {{ profileUid }}</div>
-        <div>name: {{ profileName }}</div>
         <div>ID: {{ profileEmail }}</div>
+        <div>name: {{ profileName }}</div>
         <div>content: {{ profileContent }}</div>
         <div>profileUrl: {{ profileProfileUrl }}</div>
         <div>{{ profileName }}</div>
-        <div><button @click="EditProfile" v-if="isProfileOwner == true">edit</button></div>
-        <div><button @click="$store.dispatch('CheckChatRoomAndCreateChatRoom', profileDataForChat)">chat</button></div>
+        <div>
+          <button
+            class="btn btn-dark mx-3"
+            @click="EditProfile"
+            v-if="isProfileOwner == true"
+          >
+            edit
+          </button>
+          <button
+            class="btn btn-dark mx-3"
+            @click="
+              $store.dispatch(
+                'CheckChatRoomAndCreateChatRoom',
+                profileDataForChat
+              )
+            "
+          >
+            chat
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -18,11 +36,11 @@
 <script>
 import axios from "axios";
 export default {
-  methods:{
+  methods: {
     EditProfile() {
-      console.log("edit profile")
+      console.log("edit profile");
       this.$router.push("/edit/profile");
-    }
+    },
   },
   data() {
     return {
@@ -57,7 +75,7 @@ export default {
 
         this.profileDataForChat.authorName = result.data.profile.displayName;
         this.profileDataForChat.authorUid = result.data.profile._id;
-        this.profileDataForChat.authorEmail = result.data.profile.id
+        this.profileDataForChat.authorEmail = result.data.profile.id;
 
         if (this.profileUid == this.$store.state.myUserData.uid) {
           this.isProfileOwner = true;

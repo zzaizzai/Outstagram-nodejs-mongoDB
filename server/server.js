@@ -297,20 +297,22 @@ app.post('/likepost', function (req, res) {
     if (req.body.post.liked == true) {
         console.log("cancel like this post")
         db.collection('liked').deleteMany({ $and: [{ 'post_id': req.body.post._id }, { 'user_id': req.body.user.uid }] })
-        
+        db.collection('posts').updateOne({ '_id': ObjectId(req.body.post._id) }, { $inc: { likes: -1 } })
+
     } else if (req.body.post.liked == false) {
         console.log("like this post")
         db.collection('liked').insertOne(newLiked)
+        db.collection('posts').updateOne({ '_id': ObjectId(req.body.post._id) }, { $inc: { likes: 1 } })
 
     } else {
         console.log("something wrong")
     }
 })
 
-app.post('/fetchliked', function(req, res){
+app.post('/fetchliked', function (req, res) {
     console.log('liked')
     console.log(req.body.user)
-    db.collection('liked').find({'user_id':req.body.user.uid}).toArray().then((result)=>{
+    db.collection('liked').find({ 'user_id': req.body.user.uid }).toArray().then((result) => {
         console.log(result)
         res.json({ liked: result })
 

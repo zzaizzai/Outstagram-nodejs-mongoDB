@@ -14,6 +14,6 @@ cd server
 npm install  
 nodemon server.js
 ```
-
+http://localhost:8080/   
 
 it is a project to build oustagram for my study

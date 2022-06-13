@@ -14,6 +14,12 @@ const routes = [
   {
     path: "/",
     component: Home,
+    beforeEnter: () => {
+      if (store.state.isLogin == false) {
+        return '/login'
+
+      }
+    }
   },
   {
     name: 'profile',
@@ -29,7 +35,14 @@ const routes = [
   {
     path: "/edit/profile",
     component: EditPorifle,
+    beforeEnter: () => {
+      if (store.state.isLogin == false) {
+        return '/login'
+
+      }
+    }
   },
+
   {
     path: "/register",
     component: Register,
