@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-for="item in this.$store.state.posts" :key="item">
+    <div v-for="(item, i) in this.$store.state.posts" :key="item">
       <div class="my-4">
         <div class="card mx-auto" style="width: 25rem; border-radius: 10px">
           <div class="row">
@@ -12,6 +12,11 @@
                   v-if="item.authorProfileUrl == 'none'"
                   src="./../assets/images/profile.svg"
                   alt=""
+                />
+                <img
+                  v-else
+                  class="profile-item profile-item-image look-nice"
+                  :style="{ backgroundImage: `url(${item.authorProfileUrl})` }"
                 />
               </div>
 
@@ -31,7 +36,15 @@
             </div>
             <div class="d-flex d-inline-flex">
               <img
+                v-if="item.liked == false"
+                @click="PostLike(item, i)"
                 src="./../assets/images/heart.svg"
+                class="card-button mx-1"
+              />
+              <img
+                v-else
+                @click="PostLike(item, i)"
+                src="./../assets/images/heart.liked.svg"
                 class="card-button mx-1"
               />
               <img
@@ -56,7 +69,12 @@ export default {
   },
   props: {},
   watch: {},
-  methods: {},
+  methods: {
+    PostLike(post, index) {
+      console.log("i like this post");
+      this.$store.dispatch("PostLike", { post: post, postIndex: index });
+    },
+  },
 
   beforeCreate() {},
 };
@@ -101,7 +119,14 @@ export default {
   width: 25px;
 }
 .card-button:hover {
-  filter: brightness(0.2);
   cursor: pointer;
+}
+
+.look-nice {
+  backface-visibility: hidden;
+  background-repeat: no-repeat;
+  max-width: 100%;
+  max-height: 100%;
+  background-size: cover;
 }
 </style>

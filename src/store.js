@@ -55,7 +55,7 @@ const store = createStore({
         GetPostsMutation(state, payload) {
             payload.forEach((element) => {
                 state.posts.push(element)
-                console.log(element)
+                // console.log(element)
             })
         }
         ,
@@ -77,14 +77,61 @@ const store = createStore({
             state.myUserData.userContent = payload.newProfile.profileContent
             state.myUserData.userProfileurl = payload.newProfile.profileProfileUrl
         },
+        PostLike(state, payload) {
+            // console.log(payload.post)
+            // console.log(payload.postIndex)
+
+            state.posts[payload.postIndex].liked = !state.posts[payload.postIndex].liked
+        }
+        ,
+        FetchLiked(state, payload) {
+            if (state.posts[payload]) {
+                state.posts[payload].liked = true
+            }
+
+
+        }
+
 
     },
     actions: {
-        EditProfile({commit, state}, payload) {
+        FetchLiked({ commit, state }) {
+            axios.post('http://localhost:3000/fetchliked', {
+                user: state.myUserData,
+
+            }).then((result) => {
+                result.data.liked.forEach((doc) => {
+                    var likedPostIndex = state.posts.findIndex(v => v._id === doc.post_id)
+                    // console.log(doc)
+                    // console.log(dd)
+                    commit('FetchLiked', likedPostIndex)
+
+                })
+            })
+        },
+        PostLike({ commit, state }, payload) {
+            console.log(payload)
+
+            axios.post('http://localhost:3000/likepost',
+                {
+                    user: state.myUserData,
+                    post: payload.post,
+                    postIndex: payload.postIndex
+                }
+            ).then((result) => {
+                console.log(result)
+            })
+
+            // console.log(payload)
+            commit('PostLike', payload)
+
+
+        },
+        EditProfile({ commit, state }, payload) {
             axios.post('http://localhost:3000/editprofile', { profile: payload }).then((result) => {
                 // console.log(result.data)
                 commit('EditProfile', result.data)
-                router.push("/profile/" + state.myUserData.userEmail );
+                router.push("/profile/" + state.myUserData.userEmail);
 
             })
         },

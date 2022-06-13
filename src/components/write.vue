@@ -8,7 +8,7 @@
         id=""
         cols="30"
         rows="10"
-        placeholder="share your think"
+        placeholder="share your idea"
       ></textarea>
     </div>
     <button class="btn btn-secondary" @click="UploadNewPost">upload</button>
