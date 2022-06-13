@@ -15,8 +15,7 @@ const flash = require('connect-flash');
 app.use(flash());
 
 
-
-//it takes 24hours to set socket setting
+//it takes 24hours to set socket setting. Dont touch
 const http = require('http')
 const server = http.createServer(app)
 const io = new Server(server, {
@@ -29,32 +28,7 @@ const io = new Server(server, {
     allowEIO3: true
 })
 
-
-
-io.on('connection', (socket) => {
-    // console.log('soket on')
-
-    socket.on('JOIN_ROOM', (chatroom) => {
-        console.log('joined chatroom')
-        socket.join(chatroom._id);
-    })
-
-    socket.on('ROOM_SEND', (message) => {
-        console.log('emitted a message')
-        // console.log(message)
-        io.to(message.parentUid).emit('ROOM_MESSAGE', message)
-    })
-
-    // socket.on('SEND_MESSAGE', (data) => {
-    //     console.log(data)
-    //     io.emit('MESSAGE', data)
-    // });
-
-});
-
-
-
-
+//connect mongoDB
 const MongoClient = require('mongodb').MongoClient
 MongoClient.connect('mongodb+srv://junsaiadmin:password1234@cluster0.akash.mongodb.net/?retryWrites=true&w=majority', { useUnifiedTopology: true }, function (error, client) {
     if (error) { return console.log(error) }
@@ -158,7 +132,6 @@ app.post('/register', function (req, res) {
             })
         }
     })
-
 })
 
 
@@ -171,15 +144,14 @@ app.post('/getposts', function (req, res) {
     db.collection('posts').find().limit(req.body.increase).skip(req.body.postCount).sort({ "date": -1 }).toArray(function (error, result) {
         console.log(result)
         res.json({ posts: result })
-
     })
 })
 
 app.post('/postdata', function (req, res) {
     console.log(req.body.name)
     res.json({ name: 'good' })
-
 })
+
 app.post('/uploadpost', function (req, res) {
     console.log(req.body.post)
     db.collection('posts').insertOne(req.body.post, (error, result) => {
@@ -201,11 +173,18 @@ app.post('/createchatroom', function (req, res) {
     var targetChatUid
     db.collection('chatroom').find({ whoUid: req.body.myUserData.uid }).toArray().then((result) => {
         result.forEach(doc => {
-            console.log(doc)
+            // console.log(doc)
 
-            if (doc.whoUid.includes(req.body.oponentUserData.uid)) {
+            //chose one that show the message on the chat page
+
+            if (doc.whoUid.includes(req.body.oponentUserData.uid) && (req.body.myUserData.uid != req.body.oponentUserData.uid)) {
                 targetChatUid = doc._id
+                //the opponent is not you
 
+
+            } else if ((doc.whoUid[0] == doc.whoUid[1]) && (req.body.myUserData.uid == req.body.oponentUserData.uid)) {
+                targetChatUid = doc._id
+                //the opponent is you
             }
 
             //check chatroom whether exist or not
@@ -241,13 +220,13 @@ app.post('/createchatroom', function (req, res) {
 })
 
 
-
 app.post('/getchatroom', function (req, res) {
     // console.log(req.body.user)
     db.collection('chatroom').find({ whoUid: req.body.user.uid }).sort({ "latestDate": -1 }).toArray().then((result) => {
         res.json({ chatrooms: result })
     })
 })
+
 app.post('/getmessages', function (req, res) {
     // console.log(req.body.chatroom)
     db.collection('messages').find({ parentUid: req.body.chatroom._id }).sort({ "date": -1 }).toArray().then((result) => {
@@ -261,16 +240,25 @@ app.post('/sendmessage', function (req, res) {
     // console.log(req.body.message)
     db.collection('messages').insertOne(req.body.message, (error, result) => {
     })
-    db.collection('chatroom').update({ _id: ObjectId(req.body.message.parentUid) }, { $set: { 'latestDate': new Date(), 'recentMessage': req.body.message.content } }, (error2, result2) => {
+    db.collection('chatroom').updateOne({ _id: ObjectId(req.body.message.parentUid) }, { $set: { 'latestDate': new Date(), 'recentMessage': req.body.message.content } }, (error2, result2) => {
         if (error2) { return console.log(error2) }
     })
     console.log('send message done')
 })
 
+io.on('connection', (socket) => {
+    // console.log('soket on')
+    socket.on('JOIN_ROOM', (chatroom) => {
+        console.log('joined chatroom')
+        socket.join(chatroom._id);
+    })
 
-app.use('/', express.static(path.join(__dirname, './../dist')))
-
-
+    socket.on('ROOM_SEND', (message) => {
+        console.log('emitted a message')
+        // console.log(message)
+        io.to(message.parentUid).emit('ROOM_MESSAGE', message)
+    })
+});
 
 
 app.post('/getprofile', function (req, res) {
@@ -294,3 +282,41 @@ app.post('/editprofile', function (req, res) {
         res.json({ newProfile: req.body.profile })
     })
 })
+
+app.post('/likepost', function (req, res) {
+    // console.log(req.body.user)
+    // console.log(req.body.post)
+    // console.log(req.body.postIndex)
+
+    var newLiked = {
+        post_id: req.body.post._id,
+        user_id: req.body.user.uid,
+        date: new Date(),
+    }
+
+    if (req.body.post.liked == true) {
+        console.log("cancel like this post")
+        db.collection('liked').deleteMany({ $and: [{ 'post_id': req.body.post._id }, { 'user_id': req.body.user.uid }] })
+        
+    } else if (req.body.post.liked == false) {
+        console.log("like this post")
+        db.collection('liked').insertOne(newLiked)
+
+    } else {
+        console.log("something wrong")
+    }
+})
+
+app.post('/fetchliked', function(req, res){
+    console.log('liked')
+    console.log(req.body.user)
+    db.collection('liked').find({'user_id':req.body.user.uid}).toArray().then((result)=>{
+        console.log(result)
+        res.json({ liked: result })
+
+    })
+
+})
+
+
+app.use('/', express.static(path.join(__dirname, './../dist')))

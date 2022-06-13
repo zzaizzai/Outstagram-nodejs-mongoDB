@@ -37,7 +37,7 @@ export default {
   data() {
     return {
       editProfile: {
-        displayName: "",
+        profileName: "",
         profileEmail: "",
         profileUid: "",
         profileContent: "",
