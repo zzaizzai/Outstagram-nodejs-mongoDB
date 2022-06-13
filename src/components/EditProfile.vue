@@ -3,14 +3,7 @@
     <div class="container">
       <div>_id: {{ $store.state.myUserData.uid }}</div>
       <div>ID: {{ $store.state.myUserData.userEmail }}</div>
-      <div class="row justify-content-md-center my-3">
-        <div class="col-1">Name</div>
-        <input
-          class="col-3 border"
-          type="text"
-          v-model="editProfile.profileName"
-        />
-      </div>
+      <div>Name: {{ editProfile.profileName }}</div>
       <div class="row justify-content-md-center my-3">
         <div class="col-1">profileUrl</div>
         <input
@@ -50,7 +43,8 @@ export default {
     this.editProfile.profileEmail = this.$store.state.myUserData.userEmail;
     this.editProfile.profileUid = this.$store.state.myUserData.uid;
     this.editProfile.profileContent = this.$store.state.myUserData.userContent;
-    this.editProfile.profileProfileUrl = this.$store.state.myUserData.userProfileurl;
+    this.editProfile.profileProfileUrl =
+      this.$store.state.myUserData.userProfileurl;
   },
   methods: {
     EditProfile() {

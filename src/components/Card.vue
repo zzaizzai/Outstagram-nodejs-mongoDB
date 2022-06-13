@@ -47,6 +47,8 @@
                 src="./../assets/images/heart.liked.svg"
                 class="card-button mx-1"
               />
+
+              <div class="like-display">{{ item.likes }}</div>
               <img
                 src="./../assets/images/mail.svg"
                 class="card-button mx-1"
@@ -118,8 +120,15 @@ export default {
   height: 25px;
   width: 25px;
 }
+
 .card-button:hover {
   cursor: pointer;
+}
+
+.like-display{
+  margin-right: 20px;
+   margin-left: 10px;
+   font-weight: 600;
 }
 
 .look-nice {

@@ -81,6 +81,11 @@ const store = createStore({
             // console.log(payload.post)
             // console.log(payload.postIndex)
 
+            if (state.posts[payload.postIndex].liked) {
+                state.posts[payload.postIndex].likes -= 1
+            } else {
+                state.posts[payload.postIndex].likes += 1
+            }
             state.posts[payload.postIndex].liked = !state.posts[payload.postIndex].liked
         }
         ,
